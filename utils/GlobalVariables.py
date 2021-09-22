@@ -1,0 +1,103 @@
+import numpy as np
+import datetime
+from dateutil import tz
+
+liveMode = False
+timezone = tz.gettz('Australia/Melbourne')
+
+
+START_SIM_TIME = datetime.datetime(2021,9,17,18,20,0,tzinfo=timezone).timestamp()
+SWITCH_TIME_START = datetime.datetime(2021,9,17,18,45,0,tzinfo=timezone).timestamp()
+
+START_PLAYBACK_TIME = datetime.datetime(2021,9,2,10,50,0,tzinfo=timezone).timestamp()
+
+EXPERIMENT_TIME = datetime.datetime(2021,8,16,15,15,0,tzinfo=timezone).timestamp()
+
+PHASE_ID = [1,3,2,1,1,1]
+TIME_INTERVAL = np.array([15,15,30,15,15,5])*60
+PHASE_TIME = np.zeros([len(PHASE_ID),1])
+for i in range(len(PHASE_ID)):
+    if i == 0:
+        PHASE_TIME[i] = SWITCH_TIME_START
+    else:
+        PHASE_TIME[i] = PHASE_TIME[i-1] + TIME_INTERVAL[i-1]
+
+N_BALLOON = 5
+N_REAL_BALLOON = 1
+REAL_BALLOON = np.array([1,2,3])
+ALL_BALLOON = np.array([1,2,3,4,5])
+LORA_PAIR_NUM = np.array([1,2,3])
+
+# RSSI_PARAMS_ALL = [np.array([[-37,2.2]]), np.array([[-30.88, 2.05]]), np.array([[-35, 2.2]])]
+# RSSI_PARAMS_ALL = [np.array([[2.2,-37]]), np.array([[ 2.05,-30.88]]), np.array([[ 2.2,-35]])]
+# n = 1.5006 A = -46.9615
+RSSI_PARAMS_ALL = [np.array([[1.5,-46]]), np.array([[ 1.5,-46]]), np.array([[ 1.5,-46]])]
+
+# GPS-Loggers.py
+GPS_READER_SOCKET = 5001
+BARO_LOGGER_SOCKET = 5008
+
+
+GPS_UDP_DISTRO_SOCKET = [5221,5222,5223]
+# GPS_ALL_DISTRO = [5200,5210,5290,5280, 5270]
+GPS_ALL_DISTRO = [5200,5210,5290, 5280]
+IMU_READER_SOCKET = 5003
+IMU_DISTRO_SOCKET = 5004
+RSSI_ALLOCATION_DISTRO_SOCKET = [5185, 5195]
+
+
+# LoRa-Radio-RSSI.py
+LORA_GPS_RECEIVE_SOCKET = [GPS_ALL_DISTRO[0], GPS_ALL_DISTRO[1]]
+LORA_RSSI_DISTRO_SOCKET = np.array([    [5100, 5110],       # EKF
+                                        [5190, 5191]])      # RFD900 Network
+
+RSSI_LOGGER_SOCKET = LORA_RSSI_DISTRO_SOCKET[1]
+
+RSSI_DISTRO_SOCKET = [5120] 
+LORA_RSSI_CALIBRATION_SIZE_MIN = 100
+LORA_RSSI_CALIBRATION_SIZE_MAX = 5000
+
+EKF_GPS_RECEIVE_SOCKET = GPS_ALL_DISTRO[2]
+EKF_IMU_RECEIVE_SOCKET = IMU_READER_SOCKET
+EKF_RSSI_RECEIVE_SOCKET = LORA_RSSI_DISTRO_SOCKET[0]
+EKF_OUTPUT_DISTRO_SOCKET = [5500,5501]
+EKF_OUTPUT_RECEIVE_SOCKET = EKF_OUTPUT_DISTRO_SOCKET[0]
+EKF_OUTPUT_RECEIVE_SOCKET_CL = EKF_OUTPUT_DISTRO_SOCKET[1]
+XP_OUTPUT_DISTRO_SOCKET = 5530
+
+EKF_ALL_DISTRO_SOCKET = [5510]
+LA_EKF_ALL_RECEIVE_SOCKET = EKF_ALL_DISTRO_SOCKET[0]
+
+EKF_LOOPTIME = 0.1
+EKF_RSSI_CALIBRATION_SIZE = 10
+EKF_ANCHOR = np.array([1,2,3,4,5])
+
+
+# Localisation-RSSI.py
+LA_ITERATION = 50
+LA_R_RSSI_RECEIVE_SOCKET = RSSI_DISTRO_SOCKET[0]
+LA_R_GPS_RECEIVE_SOCKET = GPS_ALL_DISTRO[3]
+LA_ANCHOR = np.array([2,3,4])
+LA_LEADER = 1
+LA_LOOP_TIME = 50
+SIGMA_RSSI_RANGE = 1000
+
+# Localisation-RSSI-OnlyGPS.py
+LA_G_GPS_RECEIVE_SOCKET = 5270
+
+# temperatureSensor.py
+TS_TEMPT_DISTRO_SOCKET = 5600
+TEMP_LOGGER_SOCKET = 5600
+
+
+# LAT_REF = -37.62397
+# LON_REF = 145.12325
+# ALT_REF = 100
+# LAT_REF = -37.67252
+# LON_REF = 145.01106
+# ALT_REF = 100
+
+
+LAT_REF = -36.9482119414943
+LON_REF = 142.87809372485748
+ALT_REF = 100

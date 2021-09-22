@@ -147,9 +147,13 @@ def pathPredictionThread():
                
                 if lastestFile == None:
                     print("Find no prediction files...")
+                    time.sleep(1)
                     continue
-                balloonPathAll.append(Path(lastestFile,i+1))
-
+                try:
+                    balloonPathAll.append(Path(lastestFile,i+1))
+                except:
+                    pass
+            # print("Found prediction files... !!!!")
             with GlobalVals.PATH_PREDICTION_MUTEX:
                 GlobalVals.PATH_PREDICTION = balloonPathAll
 
@@ -247,12 +251,12 @@ def gps_lambda_handler(credentials):
 
         print(json.dumps(aws_message))
 
-        # response = k_client.put_record(
-        #         StreamName=stream_name,
-        #         Data=json.dumps(aws_message),
+        response = k_client.put_record(
+                StreamName=stream_name,
+                Data=json.dumps(aws_message),
                 
-        #         PartitionKey='telemetryData'
-        # )
+                PartitionKey='telemetryData'
+        )
         # print("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
         # print(aws_message)
         # print("Publishing to AWS Kinesis Data ...")

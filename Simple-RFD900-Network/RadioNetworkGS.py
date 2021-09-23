@@ -176,7 +176,7 @@ def gps_lambda_handler(credentials):
                             aws_secret_access_key=credentials['SecretKey'],
                             aws_session_token=credentials['SessionToken'])
     
-    count_t = 1
+    count_t = 0
     while True:
 
         with GlobalVals.GPS_LOG_MUTEX:

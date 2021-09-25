@@ -315,7 +315,7 @@ if __name__ == '__main__':
     time.sleep(1)
         
 
-    GPS_LogReadThread = Thread(target = GPSHandler.GPSLoggerSocket, args=())
+    GPS_LogReadThread = Thread(target = GPSHandler.GPSLoggerSocketUDP, args=())
     GPS_LogReadThread.start()
 
     PathPredictionThread = Thread(target = pathPredictionThread, args=())

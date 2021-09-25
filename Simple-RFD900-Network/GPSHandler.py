@@ -104,6 +104,75 @@ def GPSLoggerSocket():
     return 
 
 #=====================================================
+# Thread for local GPS logger socket connection 
+#=====================================================
+def GPSLoggerSocketUDP():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    try:        
+        s.bind((GlobalVals.HOST,GlobalVals.GPS_LOGGER_SOCKET))
+        s.settimeout(GlobalVals.GPS_LOGGER_SOCKET_TIMEOUT)
+    except Exception as e:
+        print("Exception: " + str(e.__class__))
+        print("There was an error starting the IMU socket. This thread will now stop.")
+        with GlobalVals.BREAK_GPS_LOGGER_THREAD_MUTEX:
+            GlobalVals.BREAK_GPS_LOGGER_THREAD = True
+        return 
+
+    # intialize variables 
+    bufferRead = 1024
+    breakMainThread = False
+    while True:
+        
+        # if flag is set break the thread 
+        with GlobalVals.BREAK_GPS_LOGGER_THREAD_MUTEX:
+            if GlobalVals.BREAK_GPS_LOGGER_THREAD:
+                break
+
+        try:
+            data_bytes,addr = s.recvfrom(bufferRead)
+            # print('Connect to: ',addr)
+        except Exception as e:
+            print("Exception: " + str(e.__class__))
+            print("There was an error starting the GPS receiver socket. This thread will now stop.")
+            breakMainThread = True
+            break
+
+        if breakMainThread:
+            break
+
+        # if there is nothing in the socket then it has timed out 
+        if len(data_bytes) == 0:
+            continue
+
+        data_str = data_bytes.decode('utf-8')
+        string_list = extract_str_btw_curly_brackets(data_str)
+        
+        if len(string_list) > 0:
+            gps_list = []
+            manoeuvre_list = []
+
+            for string in string_list:
+                # print("!!!!!!!!!!!!!!!!!!!!!",string)
+                received, gps_i, manoeuvre = stringToGPS_Manoeuvre(string)
+                if received:
+                    gps_list.append(gps_i)
+                    manoeuvre_list.append(manoeuvre)
+
+            idx = 0
+            with GlobalVals.GPS_LOG_MUTEX:
+                while idx < len(gps_list):
+                    GlobalVals.GPS_ALL = [gps_list[idx]]
+                    GlobalVals.MANOEUVRE = manoeuvre_list[idx]
+                    idx += 1
+            
+        # pause a little bit so the mutexes are not getting called all the time 
+        time.sleep(0.01)  
+
+    socket_logger.close()
+    return 
+
+#=====================================================
 # Thread for distributing GPS info to other scripts 
 #=====================================================
 
